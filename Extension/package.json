@@ -1,6 +1,6 @@
 {
-  "name": "iar-vsc",
-  "displayName": "IAR For Visual Studio Code",
+  "name": "iar-vsc-121",
+  "displayName": "IAR For Visual Studio Code(1.2.1)",
   "description": "Develop IAR projects with intellisense, C-STAT and build support.",
   "version": "1.2.1",
   "publisher": "pluyckx",
@@ -81,8 +81,21 @@
         "category": "IAR Settings"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "iarProject",
+          "title": "IAR Explorer",
+          "icon": "./images/iar.svg"
+        }
+      ]
+    },
     "views": {
-      "explorer": [
+      "iarProject":[
+        {
+          "id": "projectExplorer",
+          "name": "IAR Explorer"
+        },
         {
           "id": "iar-settings",
           "name": "IAR Settings"
