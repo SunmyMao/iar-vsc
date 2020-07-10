@@ -91,7 +91,7 @@
       ]
     },
     "views": {
-      "iarProject":[
+      "iarProject": [
         {
           "id": "projectExplorer",
           "name": "IAR Explorer"
@@ -99,6 +99,10 @@
         {
           "id": "iar-settings",
           "name": "IAR Settings"
+        },
+        {
+          "id": "configurationExplorer",
+          "name": "Configuration Explorer"
         }
       ]
     },
@@ -381,6 +385,9 @@
     "xml-js": "1.6.8",
     "jsonc-parser": "1.0.0",
     "child-exec": "1.0.0",
-    "fast-deep-equal": "2.0.1"
+    "fast-deep-equal": "2.0.1",
+    "@types/xml2js": "^0.4.5",
+    "xml2js": "^0.4.23",
+    "xmljs": "^0.3.2"
   }
 }
