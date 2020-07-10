@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import * as utility from './utility';
 const { parseString } = require('xml2js');
 import * as iarProject from './iarProject';
-import * as ce from './configurationExplorer';
 
 interface Entry {
 	uri: vscode.Uri;
@@ -117,20 +116,18 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
 
 export class ProjectExplorer {
 
-	private projectExplorer: vscode.TreeView<Entry>;
+    private projectExplorer: vscode.TreeView<Entry>;
 
-	constructor(context: vscode.ExtensionContext) {
+    constructor(context: vscode.ExtensionContext,) {
         const treeDataProvider = new IarProjectProvider();
-		this.projectExplorer = vscode.window.createTreeView('projectExplorer', { treeDataProvider, canSelectMany: true, showCollapseAll: true });
+        this.projectExplorer = vscode.window.createTreeView('projectExplorer', { treeDataProvider, canSelectMany: true, showCollapseAll: true });
         vscode.commands.registerCommand('projectExplorer.openFile', (resource) => this.openResource(resource));
         vscode.commands.registerCommand('projectExplorer.removeFromProject', (...args) => this.removeFromProject(args));
         vscode.commands.registerCommand('projectExplorer.refresh', () => treeDataProvider.refresh());
+    }
 
-        vscode.window.createTreeView('configurationExplorer', {treeDataProvider: new ce.ConfigurationProvider(), showCollapseAll: true});
-	}
-
-	private openResource(resource: vscode.Uri): void {
-		vscode.window.showTextDocument(resource);
+    private openResource(resource: vscode.Uri): void {
+        vscode.window.showTextDocument(resource);
     }
     
     private removeFromProject(args: any) {

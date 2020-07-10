@@ -99,10 +99,6 @@
         {
           "id": "iar-settings",
           "name": "IAR Settings"
-        },
-        {
-          "id": "configurationExplorer",
-          "name": "Configuration Explorer"
         }
       ]
     },
