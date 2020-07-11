@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as utility from './utility';
 const { parseString } = require('xml2js');
 import * as iarProject from './iarProject';
+import { Settings } from "../settings"
 
 interface Entry {
 	uri: vscode.Uri;
@@ -15,18 +16,23 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
     private _iarProjectData: any;
 	private _onDidChangeTreeData: vscode.EventEmitter<Entry | undefined> = new vscode.EventEmitter<Entry | undefined>();
     readonly onDidChangeTreeData: vscode.Event<Entry | undefined> = this._onDidChangeTreeData.event;
-    private watcher: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher("**/*.ewp", false, false, false);;
+    private projectFileWatcher: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher("**/*.ewp", false, false, false);
+    private vscSettingsWatcher: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher("**/iar-vsc.json", false, false, false);
 
 	constructor() {
         vscode.workspace.onDidChangeConfiguration(() => { this.refresh();});
-        this.watcher.onDidChange((e: vscode.Uri) => this.checkForProjectChange(e));
+        this.projectFileWatcher.onDidChange((e: vscode.Uri) => this.checkForProjectChange(e));
+        this.vscSettingsWatcher.onDidChange(() => { this.refresh(); });
 	}
 
     private checkForProjectChange(e: vscode.Uri) {
         console.log("The IAR project file '" + e.fsPath + "' changed");
 
-        var projectFile = utility.getProjectFile();
-        if (projectFile.toUpperCase() === e.fsPath.toUpperCase()) {
+        var projectFile = Settings.getEwpFile();
+        if (projectFile == undefined) {
+            return
+        }
+        if (projectFile.toString().toUpperCase() === e.fsPath.toUpperCase()) {
             this.refresh();
         }
     }
@@ -49,11 +55,13 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
             }
         }
         if (data.hasOwnProperty("file")) {
-            const projectFile = utility.getProjectFile();
-            const projectPath = utility.getProjectFolder(projectFile);
-            for (let index = 0; index < data.file.length; index++) {
-                const name = data.file[index].name[0].replace("$PROJ_DIR$", projectPath);
-                result.push([name, vscode.FileType.File, data.file[index].name[0], null]);
+            const projectFile = Settings.getEwpFile();
+            if (projectFile != undefined) {
+                const projectPath = utility.getProjectFolder(projectFile.toString());
+                for (let index = 0; index < data.file.length; index++) {
+                    const name = data.file[index].name[0].replace("$PROJ_DIR$", projectPath);
+                    result.push([name, vscode.FileType.File, data.file[index].name[0], null]);
+                }
             }
         }
         return Promise.resolve(result);
@@ -71,16 +79,17 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
             return children.map(([name, type, originalName, data]) => ({ uri: vscode.Uri.file(name), type, originalName, data }));
         }
 
-        var projectFile = utility.getProjectFile();
-
-        if (utility.fileExists(projectFile)) {
+        var projectFile = Settings.getEwpFile();
+        if (projectFile == undefined) {
+            return []
+        }
+        if (utility.fileExists(projectFile.toString())) {
             let xml_string = fs.readFileSync(projectFile, "utf8");
             parseString(xml_string, (error: null, result: any) => {
                 if (error !== null) {
                     console.log(error);
                     return;
                 }
-                
                 this._iarProjectData = result;
             });
             if (this._iarProjectData) {
@@ -96,7 +105,6 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
                 return children.map(([name, type, originalName, data]) => ({ uri: vscode.Uri.file(name), type, originalName, data }));
             }
         }
-
 		return [];
 	}
 
@@ -110,17 +118,21 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
     }
     
     public provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): vscode.ProviderResult<string> {
+        uri = uri
+        token = token
 		return ""; //this.model.getContent(uri).then(content => content);
 	}
 }
 
 export class ProjectExplorer {
 
-    private projectExplorer: vscode.TreeView<Entry>;
+    // private projectExplorer: vscode.TreeView<Entry>;
 
-    constructor(context: vscode.ExtensionContext,) {
+    constructor(context: vscode.ExtensionContext) {
+        context = context
         const treeDataProvider = new IarProjectProvider();
-        this.projectExplorer = vscode.window.createTreeView('projectExplorer', { treeDataProvider, canSelectMany: true, showCollapseAll: true });
+        /*this.projectExplorer = */
+        vscode.window.createTreeView('projectExplorer', { treeDataProvider, canSelectMany: true, showCollapseAll: true });
         vscode.commands.registerCommand('projectExplorer.openFile', (resource) => this.openResource(resource));
         vscode.commands.registerCommand('projectExplorer.removeFromProject', (...args) => this.removeFromProject(args));
         vscode.commands.registerCommand('projectExplorer.refresh', () => treeDataProvider.refresh());

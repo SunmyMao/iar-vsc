@@ -1,6 +1,6 @@
 {
-  "name": "iar-vsc-121",
-  "displayName": "IAR For Visual Studio Code(1.2.1)",
+  "name": "iar-vsc-pro",
+  "displayName": "IAR For Visual Studio Code(PRO)",
   "description": "Develop IAR projects with intellisense, C-STAT and build support.",
   "version": "1.2.1",
   "publisher": "pluyckx",

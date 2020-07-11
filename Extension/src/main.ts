@@ -14,9 +14,6 @@ import { IarTaskProvider } from './extension/task/provider';
 import { GetSettingsCommand } from "./extension/command/getsettings";
 import { CStatTaskProvider } from './extension/task/cstat/cstattaskprovider';
 
-
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import { ProjectExplorer } from './extension/ui/projectExplorer';
 import * as utility from './extension/ui/utility';
 const { parseString } = require('xml2js');
@@ -46,7 +43,8 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.workspace.onDidChangeConfiguration(() => { verifyExtensionSettings(); });
 
     let disposable = vscode.commands.registerCommand('extension.addToIarProject', (...args) => { handleAddToIarProject(args); });
-    context.subscriptions.push(disposable);
+	context.subscriptions.push(disposable);
+
 }
 
 export function deactivate() {
@@ -85,13 +83,14 @@ async function setupExtension() {
 }
 
 function verifyExtensionSettings() {
-	vscode.commands.executeCommand('setContext', 'iarProjectExtensionEnabled', utility.fileExists(utility.getProjectFile()));
+	const projectFile = Settings.getEwpFile();
+	if (projectFile != undefined) {
+		vscode.commands.executeCommand('setContext', 'iarProjectExtensionEnabled', utility.fileExists(projectFile.toString()));
+	}
 }
 
 function handleAddToIarProject(args: any[]) {
-	const config = vscode.workspace.getConfiguration('iarproject', null);
-	var workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : "";
-	const projectFile = config.get<string>('projectFile')?.replace("${workspaceFolder}", workspaceFolder);
+	const projectFile = Settings.getEwpFile();
 	let xml_string = fs.readFileSync(projectFile, "utf8");
 	parseString(xml_string, function (error: null, result: any) {
 		if (error === null) {
@@ -110,6 +109,7 @@ function handleAddToIarProject(args: any[]) {
 				var builder = new xml2js.Builder({ rootName: "project", renderOpts: { "pretty": true, "indent": "    ", "newline": "\r\n" } });
 				var xml = builder.buildObject(result.project);
 				fs.writeFile(projectFile, xml, function (err: any, data: any) {
+					data = data;
 					if (err) {
 						console.log(err);
 					}
@@ -144,7 +144,12 @@ function getExtension(path: string): string {
 }
 
 function processUri(uri: vscode.Uri, iarJson: any, output: { modified: boolean; }) {
-	var workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath ?? "";
+	let temp = vscode.workspace.getWorkspaceFolder(uri);
+	let workspaceFolder = "";
+	if (temp != undefined) {
+		workspaceFolder = temp.uri.fsPath
+	}
+	//var workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath ?? "";
 	var filePath = uri.fsPath.replace(workspaceFolder, "$PROJ_DIR$");
 	console.log("Attempting to add '" + filePath + "' to the IAR project");
 
