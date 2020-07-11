@@ -79,7 +79,23 @@
         "command": "iar-settings.project-configuration",
         "title": "Get the selected project configuration",
         "category": "IAR Settings"
-      }
+      },
+      {
+				"command": "extension.addToIarProject",
+				"title": "Add to IAR Project"
+			},
+			{
+				"command": "projectExplorer.removeFromProject",
+				"title": "Remove"
+			},
+			{
+				"command": "projectExplorer.refresh",
+				"title": "Refresh",
+				"icon": {
+					"dark": "./images/dark/refresh.svg",
+					"light": "./images/light/refresh.svg"
+				}
+			}
     ],
     "viewsContainers": {
       "activitybar": [
@@ -107,8 +123,25 @@
         {
           "command": "iar.generateCppToolsConfig",
           "when": "view == iar-settings"
-        }
-      ]
+        },
+				{
+					"command": "projectExplorer.refresh",
+					"when": "view == projectExplorer",
+					"group": "navigation"
+				}
+      ],
+      "explorer/context": [
+				{
+					"when": "iarProjectExtensionEnabled && !explorerResourceIsFolder && resourceExtname =~ /(^.c$|^.h$|^.cpp$|^.a$|^.lib$|^.s$)/",
+					"command": "extension.addToIarProject"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "projectExplorer.removeFromProject",
+					"when": "view == projectExplorer"
+				}
+			]
     },
     "grammars": [
       {
