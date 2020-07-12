@@ -101,7 +101,7 @@
       "activitybar": [
         {
           "id": "iarProject",
-          "title": "IAR Explorer",
+          "title": "IAR for vscode(Pro)",
           "icon": "./images/iar.svg"
         }
       ]

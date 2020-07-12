@@ -20,7 +20,7 @@ const { parseString } = require('xml2js');
 const xml2js = require("xml2js");
 const fs = require('fs');
 
-export async function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext) {
     GetSettingsCommand.initCommands(context);
     UI.init(context, IarVsc.toolManager);
 
@@ -36,9 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
     IarTaskProvider.register();
     CStatTaskProvider.register(context);
 
-    await setupExtension();
     verifyExtensionSettings();
-
     new ProjectExplorer(context);
     vscode.workspace.onDidChangeConfiguration(() => { verifyExtensionSettings(); });
 
@@ -69,6 +67,7 @@ namespace IarVsc {
     export let toolManager = ToolManager.createIarToolManager();
 }
 
+/*
 async function setupExtension() {
 	const config = vscode.workspace.getConfiguration('iarproject', null);
 	if (config.projectFile === null) {
@@ -81,6 +80,7 @@ async function setupExtension() {
 		});
 	}
 }
+*/
 
 function verifyExtensionSettings() {
 	const projectFile = Settings.getEwpFile();
