@@ -172,7 +172,7 @@ export namespace CppToolsConfigGenerator {
         obj["cStandard"] = Settings.getCStandard();
         obj["cppStandard"] = Settings.getCppStandard();
 
-        obj["compilerPath"] = "";
+        obj["compilerPath"] = Settings.getCompiler();
 
         return obj;
     }
